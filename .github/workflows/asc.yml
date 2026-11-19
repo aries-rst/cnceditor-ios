@@ -1,0 +1,17 @@
+name: App Store Connect setup
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths: [ 'tools/asc_setup.py' ]
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install pyjwt cryptography requests
+      - run: python tools/asc_setup.py
+        env:
+          ASC_KEY_ID: 3N7MNRNQAB
+          ASC_ISSUER_ID: 2efa1fdb-7232-421a-98ed-f4e2a5c3df5b
+          ASC_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
