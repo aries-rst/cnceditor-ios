@@ -11,7 +11,7 @@ Aplicación para preparar trabajos 2D para una fresadora CNC: dibuje o abra vect
 - **Abrir modelo**: DXF, SVG o un proyecto .cnc2d.
 - **Modelo desde imagen / foto**: una foto de la cámara o de la galería se convierte en fondo.
 - **Volver al modelo**: aparece si ya hay un modelo abierto.
-- Arriba, la elección de **idioma** (🌐, 17 idiomas). Debajo: **Guía**, **Premium**, **Salir** y enlaces a otras apps de ARESTI Labs y al sitio web.
+- Arriba, la elección de **idioma** (🌐, 17 idiomas). Debajo: **Guía**, **Premium** y enlaces a otras apps de ARESTI Labs y al sitio web.
 
 ### Tamaño del modelo nuevo
 - **Ancho (X)** y **Alto (Y)**: tamaño de la pieza en bruto. Los botones 1830×2750, 2070×2800, 1220×2440, 2050×3050 ponen hojas estándar.

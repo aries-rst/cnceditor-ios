@@ -11,7 +11,7 @@ Eine App zur Vorbereitung von 2D-Arbeiten für eine CNC-Fräse: Vektoren zeichne
 - **Modell öffnen**: DXF, SVG oder ein .cnc2d-Projekt.
 - **Modell aus Bild / Foto**: Ein Kamera- oder Galeriebild wird zur Unterlage.
 - **Zurück zum Modell**: erscheint, wenn bereits ein Modell geöffnet ist.
-- Ganz oben wählen Sie die **Sprache** (🌐). Außerdem: **Anleitung**, **Premium**, **Beenden** und Links zu weiteren Apps.
+- Ganz oben wählen Sie die **Sprache** (🌐). Außerdem: **Anleitung**, **Premium** und Links zu weiteren Apps.
 
 ### Größe des neuen Modells
 - **Breite (X)** und **Höhe (Y)**: Größe des Rohteils. Die Tasten 1830×2750, 2070×2800, 1220×2440, 2050×3050 setzen Standardplatten ein.

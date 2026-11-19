@@ -11,7 +11,7 @@ Une application pour préparer des travaux 2D pour une fraiseuse CNC : dessinez 
 - **Ouvrir un modèle** : DXF, SVG ou projet .cnc2d.
 - **Modèle à partir d’une image / photo** : une photo de l’appareil ou de la galerie devient un fond.
 - **Retour au modèle** : apparaît si un modèle est déjà ouvert.
-- En haut, le choix de la **langue** (🌐, 17 langues). En dessous : **Guide**, **Premium**, **Quitter** et les liens vers les autres applis ARESTI Labs et le site.
+- En haut, le choix de la **langue** (🌐, 17 langues). En dessous : **Guide**, **Premium** et les liens vers les autres applis ARESTI Labs et le site.
 
 ### Taille du nouveau modèle
 - **Largeur (X)** et **Hauteur (Y)** : taille du brut. Les boutons 1830×2750, 2070×2800, 1220×2440, 2050×3050 remplissent des panneaux standard.

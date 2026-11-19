@@ -11,7 +11,7 @@ CNC freze makinesi için 2D işler hazırlama uygulaması: vektörleri çizin ve
 - **Model aç**: DXF, SVG veya .cnc2d projesi.
 - **Resimden / fotoğraftan model**: kamera veya galeri görüntüsü altlık olur.
 - **Modele dön**: bir model açıkken görünür.
-- En üstte **dil** seçimi (🌐, 17 dil). Altında **Kılavuz**, **Premium**, **Çıkış** ve diğer ARESTI Labs uygulamalarına ve web sitesine bağlantılar.
+- En üstte **dil** seçimi (🌐, 17 dil). Altında **Kılavuz**, **Premium** ve diğer ARESTI Labs uygulamalarına ve web sitesine bağlantılar.
 
 ### Yeni model boyutu
 - **Genişlik (X)** ve **Yükseklik (Y)**: ham parça boyutu. 1830×2750, 2070×2800, 1220×2440, 2050×3050 düğmeleri standart levhaları girer.

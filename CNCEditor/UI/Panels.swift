@@ -97,9 +97,14 @@ struct Flow: Layout {
         return CGSize(width: proposal.width ?? w, height: y + rowH)
     }
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
-        var x = bounds.minX, y = bounds.minY, rowH: CGFloat = 0
-        for v in subviews { let sz = v.sizeThatFits(.unspecified); if x > bounds.minX && x + sz.width > bounds.maxX { y += rowH + spacing; x = bounds.minX; rowH = 0 }
-            v.place(at: CGPoint(x: x, y: y), proposal: ProposedViewSize(sz)); x += sz.width + spacing; rowH = max(rowH, sz.height) }
+        var rows: [[(Int, CGSize)]] = [[]]; var x: CGFloat = 0
+        for (i, v) in subviews.enumerated() { let sz = v.sizeThatFits(.unspecified)
+            if x > 0 && bounds.minX + x + sz.width > bounds.maxX { rows.append([]); x = 0 }
+            rows[rows.count - 1].append((i, sz)); x += sz.width + spacing }
+        var y = bounds.minY
+        for r in rows { let rowH = r.map { $0.1.height }.max() ?? 0; var xx = bounds.minX
+            for (i, sz) in r { subviews[i].place(at: CGPoint(x: xx, y: y + (rowH - sz.height) / 2), proposal: ProposedViewSize(sz)); xx += sz.width + spacing }
+            y += rowH + spacing }
     }
 }
 
@@ -329,7 +334,7 @@ struct InfoBox: View {
         let sel = d.selected()
         if !sel.isEmpty {
             let b = Geom.bbox(sel); let kind = sel.allSatisfy { $0.closed } ? tr("замкнутые") : (sel.contains { $0.closed } ? tr("смешанные") : tr("открытые"))
-            Text("\(tr("Выбрано")): \(sel.count) — Ш \(f(b.w)) × В \(f(b.h)) мм; \(kind)").font(.system(size: 13)).foregroundColor(PINK)
+            Text("\(tr("Выбрано")): \(sel.count) — \(f(b.w)) × \(f(b.h)) \(tr("мм")); \(kind)").font(.system(size: 13)).foregroundColor(PINK)
         }
     }
 }
@@ -343,7 +348,7 @@ struct ProjectTab: View {
             ForEach(Array(d.layers.enumerated()), id: \.offset) { i, l in
                 HStack {
                     Rectangle().fill(Color(argb: l.color)).frame(width: 14, height: 14)
-                    Text(l.name).font(.system(size: 14)).frame(maxWidth: .infinity, alignment: .leading)
+                    Text(tr(l.name)).font(.system(size: 14)).frame(maxWidth: .infinity, alignment: .leading)
                     Button(l.visible ? "👁" : "—") { l.visible.toggle(); d.changed() }
                     Button(l.locked ? "🔒" : "🔓") { l.locked.toggle(); d.changed() }
                 }.padding(4).background(i == d.active ? Color(argb: 0xFFDDE8F7) : Color.clear).contentShape(Rectangle()).onTapGesture { d.active = i; d.changed() }

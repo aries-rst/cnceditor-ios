@@ -11,7 +11,7 @@ Aplikasi untuk menyiapkan pekerjaan 2D bagi mesin router CNC: gambar atau buka v
 - **Buka model**: DXF, SVG, atau proyek .cnc2d.
 - **Model dari gambar / foto**: foto kamera atau gambar galeri menjadi latar.
 - **Kembali ke model**: muncul bila model sudah terbuka.
-- Di bagian atas ada pilihan **bahasa** (🌐, 17 bahasa). Di bawahnya: **Panduan**, **Premium**, **Keluar**, serta tautan ke aplikasi ARESTI Labs lain dan situs web.
+- Di bagian atas ada pilihan **bahasa** (🌐, 17 bahasa). Di bawahnya: **Panduan**, **Premium**, serta tautan ke aplikasi ARESTI Labs lain dan situs web.
 
 ### Ukuran model baru
 - **Lebar (X)** dan **Tinggi (Y)**: ukuran benda kerja. Tombol 1830×2750, 2070×2800, 1220×2440, 2050×3050 mengisi lembar standar.

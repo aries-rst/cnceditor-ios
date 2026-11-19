@@ -11,7 +11,7 @@ Um aplicativo para preparar trabalhos 2D para uma fresadora CNC: desenhe ou abra
 - **Abrir modelo**: DXF, SVG ou projeto .cnc2d.
 - **Modelo a partir de imagem / foto**: uma foto da câmera ou da galeria vira fundo.
 - **Voltar ao modelo**: aparece quando já há um modelo aberto.
-- No topo, a escolha do **idioma** (🌐, 17 idiomas). Abaixo: **Guia**, **Premium**, **Sair** e links para outros apps da ARESTI Labs e o site.
+- No topo, a escolha do **idioma** (🌐, 17 idiomas). Abaixo: **Guia**, **Premium** e links para outros apps da ARESTI Labs e o site.
 
 ### Tamanho do novo modelo
 - **Largura (X)** e **Altura (Y)**: tamanho da peça bruta. Os botões 1830×2750, 2070×2800, 1220×2440, 2050×3050 colocam chapas padrão.

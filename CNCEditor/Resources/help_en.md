@@ -11,7 +11,7 @@ An app for preparing 2D jobs for a CNC router: draw or open vectors, calculate c
 - **Open model**: DXF, SVG, G-code (.tap / .nc) or a .cnc2d project.
 - **Model from picture / photo**: a camera shot or gallery image becomes an underlay.
 - **Back to model**: shown when a model is already open.
-- At the top — **language** choice (🌐, 17 languages). Below — **User guide**, **Premium**, **Exit** and links to other ARESTI Labs apps and the website.
+- At the top — **language** choice (🌐, 17 languages). Below — **User guide**, **Premium** and links to other ARESTI Labs apps and the website.
 
 ### Size for new model
 - **Width (X)** and **Height (Y)**: the blank size. Buttons 1830×2750, 2070×2800, 1220×2440, 2050×3050 fill in standard sheets.

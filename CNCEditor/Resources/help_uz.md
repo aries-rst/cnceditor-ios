@@ -11,7 +11,7 @@ ChPU frezer stanogi uchun 2D ishlarni tayyorlash dasturi: vektorlarni chizasiz y
 - **Modelni ochish**: DXF, SVG yoki .cnc2d loyiha.
 - **Rasm / fotodan model**: kamera surati yoki galereyadagi rasm taglik bo‘ladi.
 - **Modelga qaytish**: model ochiq bo‘lsa ko‘rinadi.
-- Yuqorida — **til** tanlash (🌐, 17 til). Pastda — **Qo‘llanma**, **Premium**, **Chiqish** hamda ARESTI Labs’ning boshqa ilovalari va saytiga havolalar.
+- Yuqorida — **til** tanlash (🌐, 17 til). Pastda — **Qo‘llanma**, **Premium** hamda ARESTI Labs’ning boshqa ilovalari va saytiga havolalar.
 
 ### Yangi model o‘lchami
 - **Kenglik (X)** va **Balandlik (Y)**: zagotovka o‘lchami. 1830×2750, 2070×2800, 1220×2440, 2050×3050 tugmalari standart listlarni qo‘yadi.
