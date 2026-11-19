@@ -53,7 +53,7 @@ extension Array {
 }
 
 /// Округление «половина вверх» по точному двоичному значению (как BigDecimal.setScale(HALF_UP).stripTrailingZeros().toPlainString())
-func fmtNum(_ v: Double, _ dec: Int) -> String {
+func fmtNum(_ v: Double, _ dec: Int, strip: Bool = true) -> String {
     if !v.isFinite { return "0" }
     let s = String(format: "%.40f", abs(v))
     let parts = s.split(separator: ".", omittingEmptySubsequences: false)
@@ -67,10 +67,14 @@ func fmtNum(_ v: Double, _ dec: Int) -> String {
     }
     let nInt = digits.count - dec
     var intS = digits[0..<nInt].map { String($0) }.joined(); var fracS = digits[nInt...].map { String($0) }.joined()
-    while fracS.hasSuffix("0") { fracS.removeLast() }
+    if strip { while fracS.hasSuffix("0") { fracS.removeLast() } }
     while intS.count > 1 && intS.hasPrefix("0") { intS.removeFirst() }
     if intS.isEmpty { intS = "0" }
     var r = fracS.isEmpty ? intS : intS + "." + fracS
-    if r != "0" && v < 0 { r = "-" + r }
+    if v < 0 && (r != "0" || !strip) { r = "-" + r }
     return r
 }
+
+/// Kotlin roundToInt / Math.round: половина вверх (к +∞)
+@inline(__always) func kround(_ x: Double) -> Int { Int((x + 0.5).rounded(.down)) }
+@inline(__always) func kroundL(_ x: Double) -> Int64 { Int64((x + 0.5).rounded(.down)) }
