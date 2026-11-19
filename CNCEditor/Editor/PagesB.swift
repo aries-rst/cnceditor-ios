@@ -294,13 +294,28 @@ final class EnvelopeTool: CanvasTool {
             let f = Geom.flatten(cv); let L = Geom.polyLen(f); let w = c.chk("ewon") ? c.num("ew") : bb.h
             let n = copies == "one" ? 1 : (copies == "n" ? max(1, c.int("en")) : max(1, Int(floor(L / (bb.w * w / (bb.h == 0 ? 1 : bb.h))))))
             let side = c.str("eside")
-            envs = (0..<n).map { k in let base = sub(f, L * Double(k) / Double(n), L * Double(k + 1) / Double(n))
-                let bot = side == "left" ? base : (side == "right" ? offs(base, -w) : offs(base, -w / 2)); let top = side == "left" ? offs(base, w) : (side == "right" ? base : offs(base, w / 2)); return mk(bot, top) }
+            var list: [(Double, Double) -> P] = []
+            let dn = Double(n)
+            for k in 0..<n {
+                let base: [P] = sub(f, L * Double(k) / dn, L * Double(k + 1) / dn)
+                let bot: [P], top: [P]
+                if side == "left" { bot = base; top = offs(base, w) } else if side == "right" { bot = offs(base, -w); top = base } else { bot = offs(base, -w / 2); top = offs(base, w / 2) }
+                list.append(mk(bot, top))
+            }
+            envs = list
         } else {
             guard let tp = curves["top"].flatMap({ c.doc.byId($0) }), let bt = curves["bot"].flatMap({ c.doc.byId($0) }) else { c.ui.toast("Укажите верхнюю и нижнюю кривые"); return }
             let ft = Geom.flatten(tp), fb = Geom.flatten(bt); let Lt = Geom.polyLen(ft), Lb = Geom.polyLen(fb); var w = Geom.bbox(tp).cy - Geom.bbox(bt).cy; if w == 0 { w = bb.h }
             let n = copies == "one" ? 1 : (copies == "n" ? max(1, c.int("en")) : max(1, Int(floor(Lb / (bb.w * abs(w) / (bb.h == 0 ? 1 : bb.h))))))
-            envs = (0..<n).map { k in mk(sub(fb, Lb * Double(k) / Double(n), Lb * Double(k + 1) / Double(n)), sub(ft, Lt * Double(k) / Double(n), Lt * Double(k + 1) / Double(n))) }
+            var list: [(Double, Double) -> P] = []
+            let dn = Double(n)
+            for k in 0..<n {
+                let k0 = Double(k) / dn, k1 = Double(k + 1) / dn
+                let bot: [P] = sub(fb, Lb * k0, Lb * k1)
+                let top: [P] = sub(ft, Lt * k0, Lt * k1)
+                list.append(mk(bot, top))
+            }
+            envs = list
         }
     }
     func finish() {
