@@ -9,8 +9,8 @@ struct DialogsHost: View {
     let onHome: () -> Void
     var body: some View {
         let _ = s.tick
-        if let dl = s.dialog {
-            let close = { s.dialog = nil; s.bump() }
+        if let dl = s.dlg {
+            let close = { s.dlg = nil; s.bump() }
             ZStack {
                 Color.black.opacity(0.35).ignoresSafeArea().onTapGesture { hideKeyboard() }
                 switch dl.0 {
@@ -98,7 +98,7 @@ struct PrimaryBtn: View {
 // ---------- новая модель ----------
 struct NewModelDlg: View {
     @ObservedObject var s: AppState; let close: () -> Void
-    @State private var w = "", h = "", t = ""; @State private var org = "bl"; @State private var inch = false; @State private var inited = false
+    @State private var w = ""; @State private var h = ""; @State private var t = ""; @State private var org = "bl"; @State private var inch = false; @State private var inited = false
     private let pts: [(String, CGPoint)] = [("tl", CGPoint(x: 0, y: 0)), ("tr", CGPoint(x: 1, y: 0)), ("c", CGPoint(x: 0.5, y: 0.5)), ("bl", CGPoint(x: 0, y: 1)), ("br", CGPoint(x: 1, y: 1))]
     var body: some View {
         Dlg(title: "Размер новой модели", close: close, buttons: { PrimaryBtn("OK") {
@@ -130,7 +130,11 @@ struct NewModelDlg: View {
 // ---------- материал ----------
 struct MaterialDlg: View {
     @ObservedObject var s: AppState; let close: () -> Void
-    @State private var t = "", z = "", hx = "", hy = "", hz = ""
+    @State private var t = ""
+    @State private var z = ""
+    @State private var hx = ""
+    @State private var hy = ""
+    @State private var hz = ""
     var body: some View {
         let m = s.doc.material
         Dlg(title: "Настройка материала", close: close, buttons: { PrimaryBtn("OK") { m.thickness = num(t) ?? m.thickness; m.safeZ = num(z) ?? m.safeZ; m.homeX = num(hx) ?? 0; m.homeY = num(hy) ?? 0; m.homeZ = num(hz) ?? m.homeZ; s.doc.dirty = true; s.doc.changed(); close() } }) {
@@ -167,8 +171,8 @@ struct ToolDbDlg: View {
                 }
             }
             Flow {
-                Button("+ " + tr("Добавить")) { let t = ToolDef(); d.tools.append(t); ToolStore.save(s); s.dialog = ("toolEdit", t); s.bump() }.padding(6)
-                Button(tr("Изменить")) { if let t = sel { s.dialog = ("toolEdit", t); s.bump() } }.padding(6).disabled(sel == nil)
+                Button("+ " + tr("Добавить")) { let t = ToolDef(); d.tools.append(t); ToolStore.save(s); s.dlg = ("toolEdit", t); s.bump() }.padding(6)
+                Button(tr("Изменить")) { if let t = sel { s.dlg = ("toolEdit", t); s.bump() } }.padding(6).disabled(sel == nil)
                 Button(tr("Копия")) { if let t = sel { let c = t.copy(); c.id = "t" + Geom.uid(); c.name = t.name + " (копия)"; d.tools.append(c); selId = c.id; ToolStore.save(s); s.bump() } }.padding(6).disabled(sel == nil)
                 Button(tr("Удалить")) { if let t = sel { d.tools.removeAll { $0 === t }; selId = d.tools.first?.id; ToolStore.save(s); s.bump() } }.padding(6).disabled(sel == nil || d.tools.count <= 1)
             }.padding(.top, 8)
@@ -177,8 +181,18 @@ struct ToolDbDlg: View {
 }
 struct ToolEditDlg: View {
     @ObservedObject var s: AppState; let t: ToolDef; let close: () -> Void
-    @State private var name = "", type = "slot", units = "mm/s", group = ""
-    @State private var num0 = "", dia = "", ang = "", sd = "", so = "", sp = "", fd = "", pl = ""
+    @State private var name = ""
+    @State private var type = "slot"
+    @State private var units = "mm/s"
+    @State private var group = ""
+    @State private var num0 = ""
+    @State private var dia = ""
+    @State private var ang = ""
+    @State private var sd = ""
+    @State private var so = ""
+    @State private var sp = ""
+    @State private var fd = ""
+    @State private var pl = ""
     var body: some View {
         Dlg(title: "Инструмент", close: close, buttons: { PrimaryBtn(tr("Сохранить")) {
             t.name = name; t.type = type; t.units = units; t.group = group; t.num = num(num0).map { Int($0) } ?? t.num; t.dia = num(dia) ?? t.dia; t.angle = num(ang) ?? t.angle
@@ -212,7 +226,7 @@ struct SaveTpDlg: View {
         func gen() -> String? { let recs = d.toolpaths.filter { !off.contains($0.id) }; if recs.isEmpty { s.toast("Отметьте траектории"); return nil }; return d.gcode(recs, post) }
         return Dlg(title: "Сохранить траектории", close: close, wide: true, buttons: {
             Button(tr("Просмотр")) { if let g = gen() { preview = g.components(separatedBy: post.eol).prefix(60).joined(separator: "\n") } }.padding(6)
-            PrimaryBtn(tr("Сохранить")) { if !Premium.canSaveNc() { s.dialog = ("premium", "limit"); s.bump() } else if let g = gen() { Prefs.setInt("post", pi); s.saveText(fname + "." + post.ext, g) { Premium.countNc(); AdManager.maybeInterstitial(); s.bump() } } }
+            PrimaryBtn(tr("Сохранить")) { if !Premium.canSaveNc() { s.dlg = ("premium", "limit"); s.bump() } else if let g = gen() { Prefs.setInt("post", pi); s.saveText(fname + "." + post.ext, g) { Premium.countNc(); AdManager.maybeInterstitial(); s.bump() } } }
         }) {
             if !Premium.on() { Text(tr("Бесплатно: 1 программа для станка в день. Сегодня осталось:") + " \(max(0, Premium.FREE_PER_DAY - Premium.usedToday()))").font(.system(size: 12)).foregroundColor(Color(argb: 0xFFB8862A)) }
             if d.toolpaths.isEmpty { Text(tr("Нет траекторий. Выберите векторы и нажмите «Профиль» или «Вдоль векторов».")) }
@@ -225,7 +239,7 @@ struct SaveTpDlg: View {
             Button("+ " + tr("Загрузить свой .con…")) { s.pickFile("*/*") { _, b in let txt = Io.decodeText(b); _ = Post.parseCon(txt); PostStore.add(txt); posts = PostStore.list(); pi = posts.count - 1 } }.font(.system(size: 13)).padding(.vertical, 4)
             Text(tr("Имя файла")).font(.system(size: 12)).foregroundColor(.secondary)
             HStack { TextField("", text: $fname).padding(6).overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.gray.opacity(0.5))); Text("." + post.ext) }
-            Button { if !Premium.canSaveNc() { s.dialog = ("premium", "limit"); s.bump() } else if let g = gen() { Prefs.setInt("post", pi); if s.shareText(fname + "." + post.ext, g) { Premium.countNc() } } } label: {
+            Button { if !Premium.canSaveNc() { s.dlg = ("premium", "limit"); s.bump() } else if let g = gen() { Prefs.setInt("post", pi); if s.shareText(fname + "." + post.ext, g) { Premium.countNc() } } } label: {
                 Text("📤  " + tr("Поделиться") + " (Telegram, " + tr("почта") + "…)").frame(maxWidth: .infinity).padding(8).overlay(RoundedRectangle(cornerRadius: 18).stroke(BLUE)) }.padding(.top, 6)
             Text(tr("Точка «дом»") + ": X\(f2(d.material.homeX)) Y\(f2(d.material.homeY)) Z\(f2(d.material.homeZ))").font(.system(size: 12)).foregroundColor(.gray)
             if !preview.isEmpty { Text(preview).font(.system(size: 11, design: .monospaced)).frame(maxWidth: .infinity, alignment: .leading).padding(6).background(Color(argb: 0xFFF4F4F4)) }
@@ -326,7 +340,8 @@ struct PropsDlg: View {
 
 struct NodeXYDlg: View {
     @ObservedObject var s: AppState; let close: () -> Void
-    @State private var x = "", y = ""
+    @State private var x = ""
+    @State private var y = ""
     var body: some View {
         Dlg(title: "Координаты точки", close: close, buttons: { PrimaryBtn("OK") { if let a = num(x), let b = num(y) { s.node.setPoint(a, b) }; close() } }) { NumRow(label: "X", v: $x); NumRow(label: "Y", v: $y) }
             .onAppear { guard let n = s.node.selNode else { close(); return }; let p0 = n.i < 0 ? P(n.p.x0, n.p.y0) : P(n.p.segs[n.i].x, n.p.segs[n.i].y); x = f2(p0.x); y = f2(p0.y) }

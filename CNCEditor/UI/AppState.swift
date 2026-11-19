@@ -53,7 +53,7 @@ final class AppState: NSObject, ObservableObject, UiBridge {
     var showTp = true
     var multi = false
     var mode = "select" // select | node
-    var dialog: (String, Any?)? = nil
+    var dlg: (String, Any?)? = nil
     var pick: (String, (P) -> Void)? = nil
     var selTp: ToolpathRec? = nil
     var lastUri: URL? = nil
@@ -114,7 +114,7 @@ final class AppState: NSObject, ObservableObject, UiBridge {
         switch id {
         case "imageGallery": pickImage { [weak self] d in self?.loadUnderlay(d) }
         case "imageCamera": takePhoto { [weak self] d in self?.loadUnderlay(d) }
-        default: dialog = (id, arg); bump()
+        default: dlg = (id, arg); bump()
         }
     }
     func underlayGray(_ maxSide: Int) -> (Int, Int, [Int])? {
@@ -197,9 +197,9 @@ final class AppState: NSObject, ObservableObject, UiBridge {
             case "jpg", "jpeg", "png", "webp", "bmp", "heic": loadUnderlay(b); return
             case "cnc2d", "json": try doc.loadProject(String(decoding: b, as: UTF8.self)); doc.fileName = n
             default:
-                if GCODE_EXT.contains(ext) { dialog = ("gcode", GcodeArg(name: n, text: Io.decodeText(b), asNew: true)); bump(); return }
+                if GCODE_EXT.contains(ext) { dlg = ("gcode", GcodeArg(name: n, text: Io.decodeText(b), asNew: true)); bump(); return }
                 let t = Io.decodeText(b)
-                if ext != "dxf" && ext != "svg" && Gcode.looksLikeGcode(t) { dialog = ("gcode", GcodeArg(name: n, text: t, asNew: true)); bump(); return }
+                if ext != "dxf" && ext != "svg" && Gcode.looksLikeGcode(t) { dlg = ("gcode", GcodeArg(name: n, text: t, asNew: true)); bump(); return }
                 let wasModel = doc.hasModel; try doc.openText(n, t, true); if !wasModel || ext == "dxf" { lastUri = ext == "dxf" ? u : nil }
             }
             closePage(); screen = "editor"; Recent.add(n); doc.changed(); fit()
@@ -207,7 +207,7 @@ final class AppState: NSObject, ObservableObject, UiBridge {
     }
     func importVectors() { openDoc { [weak self] u, b in guard let s = self else { return }; let n = u.lastPathComponent; let t = Io.decodeText(b)
         do { let ext = u.pathExtension.lowercased()
-            if GCODE_EXT.contains(ext) || (ext != "dxf" && ext != "svg" && Gcode.looksLikeGcode(t)) { s.dialog = ("gcode", GcodeArg(name: n, text: t, asNew: false)); s.bump() }
+            if GCODE_EXT.contains(ext) || (ext != "dxf" && ext != "svg" && Gcode.looksLikeGcode(t)) { s.dlg = ("gcode", GcodeArg(name: n, text: t, asNew: false)); s.bump() }
             else { try s.doc.openText(n, t, false); s.fit() } } catch { s.toast(tr("Ошибка: ") + error.localizedDescription) } } }
     func gInfo(_ r: Gcode.Result) -> String { tr("Ходов") + ": \(r.moves), " + tr("векторов") + ": \(r.imp.paths.count), " + tr("инструментов") + ": \(r.tools.count)" +
         (r.minZ < 0 ? ", " + tr("глубина до") + " " + String(format: "%.2f", -r.minZ) + " " + tr("мм") : "") }
@@ -247,7 +247,7 @@ final class AppState: NSObject, ObservableObject, UiBridge {
     func cmd(_ k: String) {
         let noSel = doc.selected().isEmpty
         switch k {
-        case "new": dialog = ("newModel", nil)
+        case "new": dlg = ("newModel", nil)
         case "open": openFile()
         case "save": saveDxf(false)
         case "importv": importVectors()
@@ -272,13 +272,13 @@ final class AppState: NSObject, ObservableObject, UiBridge {
         case "zoomFit": fit()
         case "grid": showGrid.toggle()
         case "multi": multi.toggle(); if !multi { select.stickyMulti = false }; toast(multi ? "Касание добавляет или убирает вектор" : "Обычный выбор")
-        case "material": dialog = ("material", nil)
-        case "tooldb": dialog = ("toolDb", nil)
-        case "savetp": dialog = ("saveTp", nil)
+        case "material": dlg = ("material", nil)
+        case "tooldb": dlg = ("toolDb", nil)
+        case "savetp": dlg = ("saveTp", nil)
         case "profile", "machine", "area", "vbit", "drill":
             if noSel { toast("Сначала выберите векторы") } else { openPage(["profile": "tp_profile", "machine": "tp_machine", "area": "tp_area", "vbit": "tp_vcarve"][k] ?? "tp_drill", nil) }
         case "sim": openPage("sim", nil)
-        case "layers": dialog = ("layers", nil)
+        case "layers": dlg = ("layers", nil)
         case "rotatecopy": openPage("blockcopy", "rotate")
         default: if Pages.all[k] != nil { openPage(k, nil) } else { toast("Нет команды: \(k)") }
         }
