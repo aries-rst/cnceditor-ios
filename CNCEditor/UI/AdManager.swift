@@ -1,7 +1,6 @@
 /* Реклама AdMob (порт Ads.kt). Включается для релиза: ADS_ENABLED = true (как на Android — пока выключена). */
 import SwiftUI
 import UIKit
-import AppTrackingTransparency
 import GoogleMobileAds
 import UserMessagingPlatform
 
@@ -21,7 +20,6 @@ enum AdManager {
         Task { @MainActor in
             do { try await ConsentInformation.shared.requestConsentInfoUpdate(with: RequestParameters())
                  if let vc = topVC() { try await ConsentForm.loadAndPresentIfRequired(from: vc) } } catch {}
-            if ATTrackingManager.trackingAuthorizationStatus == .notDetermined { _ = await ATTrackingManager.requestTrackingAuthorization() }
             if ConsentInformation.shared.canRequestAds { start() }
         }
     }
