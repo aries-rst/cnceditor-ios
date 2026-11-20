@@ -22,7 +22,7 @@ old = next((x["id"] for x in subs_() if x["attributes"]["state"] in ("WAITING_FO
 if old:
     call("PATCH", f"/v1/reviewSubmissions/{old}", {"data": {"type": "reviewSubmissions", "id": old, "attributes": {"canceled": True}}})
     for _ in range(40):
-        st = call("GET", f"/v1/reviewSubmissions/{old}")["data"]["attributes"]["state"]; print("old", st)
+        j = call("GET", f"/v1/reviewSubmissions/{old}", ok=(200, 404)); st = j["data"]["attributes"]["state"] if j.get("data") else "GONE"; print("old", st)
         if st not in ("CANCELING", "WAITING_FOR_REVIEW", "IN_REVIEW"): break
         time.sleep(15)
 for _ in range(40):
