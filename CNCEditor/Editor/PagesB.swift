@@ -211,7 +211,7 @@ enum PagesB {
         guard let rec = c.doc.computeToolpath(type, src, tpParams(type, c), tool, c.str("pName").isEmpty ? type : c.str("pName"), (c.state["rec"] as? ToolpathRec)?.id) else {
             c.info["tp"] = "Траектория пустая — проверьте векторы и диаметр фрезы."; c.bump(); return }
         c.state["rec"] = rec; c.doc.lastTool = tool; let s = Toolpath.summary(rec.result.moves)
-        c.info["tp"] = "✓ Рассчитано: \(type == "drill" ? "отверстий" : "контуров") \(rec.result.chains.count)\nДлина реза \(f2(s.cut / 1000)) м, врезок \(s.plunges), время ≈ \(Int(ceil(s.minutes))) мин"; c.bump()
+        c.info["tp"] = "✓ " + tr(type == "drill" ? "Рассчитано, отверстий" : "Рассчитано, контуров") + ": \(rec.result.chains.count)\n" + tr("Длина реза") + " \(f2(s.cut / 1000)) " + tr("м") + ", " + tr("врезок") + " \(s.plunges), " + tr("время ≈") + " \(Int(ceil(s.minutes))) " + tr("мин"); c.bump()
     }
     private static func manualTabs(_ c: PageCtx) {
         guard let rec = c.state["rec"] as? ToolpathRec else { c.ui.toast("Сначала рассчитайте траекторию"); return }

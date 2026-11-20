@@ -330,7 +330,7 @@ struct InfoBox: View {
     @ObservedObject var s: AppState
     var body: some View {
         let d = s.doc, m = d.model; let f = PageCtx.f2
-        Text("\(tr("Модель")): X \(f(m.w)) × Y \(f(m.h)) мм, \(tr("материал")) \(f(d.material.thickness)) мм\n\(tr("векторов")): \(d.paths.count), \(tr("траекторий")): \(d.toolpaths.count)").font(.system(size: 13))
+        Text("\(tr("Модель")): X \(f(m.w)) × Y \(f(m.h)) \(tr("мм")), \(tr("материал")) \(f(d.material.thickness)) \(tr("мм"))\n\(tr("векторов")): \(d.paths.count), \(tr("траекторий")): \(d.toolpaths.count)").font(.system(size: 13))
         let sel = d.selected()
         if !sel.isEmpty {
             let b = Geom.bbox(sel); let kind = sel.allSatisfy { $0.closed } ? tr("замкнутые") : (sel.contains { $0.closed } ? tr("смешанные") : tr("открытые"))
