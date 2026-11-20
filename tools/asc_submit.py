@@ -42,7 +42,7 @@ v = [x for x in vs if x["attributes"]["appStoreState"] in ("PREPARE_FOR_SUBMISSI
 b = None
 for _ in range(80):
     bs = call("GET", f"/v1/builds?filter[app]={APP}&sort=-uploadedDate&limit=3")["data"]
-    b = next((x for x in bs if int(x["attributes"]["version"]) > 12 and x["attributes"]["processingState"] == "VALID"), None)
+    b = next((x for x in bs if int(x["attributes"]["version"]) >= 14 and x["attributes"]["processingState"] == "VALID"), None)
     if b: break
     time.sleep(30)
 if not b: raise SystemExit("new build not ready")
