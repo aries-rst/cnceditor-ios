@@ -2,7 +2,7 @@
 import SwiftUI
 
 enum CrossPromo {
-    static let SITE = "https://aresti-labs.web.app"
+    static let SITE = "https://www.arestilabs.com"
     struct App { let key: String; let icon: String; let ru: String; let en: String; var appStore: String? = nil }
     static let APPS: [App] = [
         App(key: "nardy", icon: "🎲", ru: "Нарды: Шёлковый путь", en: "Silk Road Backgammon"),
@@ -29,7 +29,7 @@ struct CrossPromoRow: View {
                         .frame(width: 108).padding(8).background(Color.white).cornerRadius(10).onTapGesture { CrossPromo.open(a) }
                 } }.padding(.vertical, 8)
             }
-            Text("🌐 " + tr("Сайт ARESTI Labs") + " — aresti-labs.web.app").font(.system(size: 13)).foregroundColor(BLUE).padding(6).onTapGesture { CrossPromo.open(CrossPromo.SITE) }
+            Text("🌐 " + tr("Сайт ARESTI Labs") + " — www.arestilabs.com").font(.system(size: 13)).foregroundColor(BLUE).padding(6).onTapGesture { CrossPromo.open(CrossPromo.SITE) }
         }.padding(.top, 18)
     }
 }

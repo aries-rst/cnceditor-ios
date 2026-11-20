@@ -16,7 +16,7 @@ final class ToolDef {
     var id: String, name: String, type: String; var num: Int; var dia: Double, angle: Double
     var stepdown: Double, stepover: Double; var spindle: Int; var feed: Double, plunge: Double
     var units: String, notes: String, group: String
-    init(_ id: String = "t" + Geom.uid(), _ name: String = "Фреза", _ type: String = "slot", _ num: Int = 1, _ dia: Double = 6, _ angle: Double = 90,
+    init(_ id: String = ToolDef.newId(), _ name: String = "Фреза", _ type: String = "slot", _ num: Int = 1, _ dia: Double = 6, _ angle: Double = 90,
          _ stepdown: Double = 6, _ stepover: Double = 2.4, _ spindle: Int = 15000, _ feed: Double = 76, _ plunge: Double = 50,
          _ units: String = "mm/s", _ notes: String = "", _ group: String = "") {
         self.id = id; self.name = name; self.type = type; self.num = num; self.dia = dia; self.angle = angle; self.stepdown = stepdown; self.stepover = stepover
@@ -27,11 +27,19 @@ final class ToolDef {
     func cut() -> CutTool { CutTool(num, name, dia, stepdown, stepover, spindle, perMin(feed), perMin(plunge), angle) }
     func toMap() -> JMap { JMap([("id", id), ("name", name), ("type", type), ("num", num), ("dia", dia), ("angle", angle), ("stepdown", stepdown), ("stepover", stepover),
         ("spindle", spindle), ("feed", feed), ("plunge", plunge), ("units", units), ("notes", notes), ("group", group)]) }
-    static func from(_ m: JMap) -> ToolDef { ToolDef(m.s("id", "t" + Geom.uid()), m.s("name", "Фреза"), m.s("type", "slot"), m.i("num", 1), m.d("dia", 6), m.d("angle", 90),
+    static func from(_ m: JMap) -> ToolDef { ToolDef(m.s("id", ToolDef.newId()), m.s("name", "Фреза"), m.s("type", "slot"), m.i("num", 1), m.d("dia", 6), m.d("angle", 90),
         m.d("stepdown", 6), m.d("stepover", 2.4), m.i("spindle", 15000), m.d("feed", 76), m.d("plunge", 50), m.s("units", "mm/s"), m.s("notes"), m.s("group")) }
     static let TYPES: [(String, String)] = [("slot", "Концевая (пазовая)"), ("end", "Концевая"), ("ball", "Сферическая"), ("vbit", "V-резец (гравёр)"), ("drill", "Сверло")]
-    static func defaults() -> [ToolDef] { [
-        ToolDef("t1", "Abd-Uzish 16", "slot", 1, 6, 90, 6, 6, 15000, 76, 50, "mm/s", "Концевая фреза: черновая, выборка, вырезание, профиль", "Дерево и пластик / Черновая и 2D-чистовая"),
+    /// уникальный id инструмента и после перезапуска
+    static func newId() -> String { "t" + String(Int64(Date().timeIntervalSince1970 * 1000), radix: 36) + String(Int.random(in: 1000...9999)) }
+    /// готовые фрезы пользователя для дерева (w1…w5) — добавляются и в уже сохранённую базу
+    static let WOOD_IDS = ["w1", "w2", "w3", "w4", "w5"]
+    static func defaults() -> [ToolDef] { let EM = "Концевая фреза: черновая, выборка, вырезание, профиль", WD = "Дерево и пластик / Черновая и 2D-чистовая"; return [
+        ToolDef("w1", "#1 d=6mm, Z=6mm", "slot", 1, 6, 90, 6, 6, 15000, 76, 50, "mm/s", EM, WD),
+        ToolDef("w2", "#2 d=6mm, Z=3mm", "slot", 2, 6, 90, 3, 6, 15000, 76, 50, "mm/s", EM, WD),
+        ToolDef("w3", "#3 d=6mm, Z=6mm", "slot", 3, 6, 90, 6, 6, 15000, 76, 50, "mm/s", EM, WD),
+        ToolDef("w4", "#4 d=4mm, Z=6mm", "slot", 4, 4, 90, 6, 6, 15000, 76, 50, "mm/s", EM, WD),
+        ToolDef("w5", "d=4mm, Z=6mm", "slot", 1, 4, 90, 6, 6, 15000, 76, 50, "mm/s", EM, WD),
         ToolDef("t2", "Концевая 3 мм", "end", 1, 3, 90, 3, 1.2, 18000, 40, 20, "mm/s", "", "Дерево и пластик / Черновая и 2D-чистовая"),
         ToolDef("t3", "Концевая 8 мм", "end", 1, 8, 90, 8, 3.2, 16000, 70, 40, "mm/s", "", "Дерево и пластик / Черновая и 2D-чистовая"),
         ToolDef("t4", "V-резец 90°", "vbit", 1, 12, 90, 2, 0.5, 18000, 40, 20, "mm/s", "Для гравировки и V-резьбы", "Дерево и пластик / V-резцы"),

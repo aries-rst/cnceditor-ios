@@ -148,7 +148,9 @@ struct MaterialDlg: View {
 // ---------- база инструментов ----------
 enum ToolStore {
     static func load(_ s: AppState) { guard let j = Prefs.str("tools"), let l = (try? Json.parse(j)) as? [Any] else { return }
-        let tools = l.compactMap { ($0 as? JMap).map { ToolDef.from($0) } }; if !tools.isEmpty { s.doc.tools = tools } }
+        let tools = l.compactMap { ($0 as? JMap).map { ToolDef.from($0) } }; if !tools.isEmpty { s.doc.tools = tools }
+        if Prefs.int("toolsVer", 1) < 2 { let have = Set(s.doc.tools.map { $0.id }); let add = ToolDef.defaults().filter { ToolDef.WOOD_IDS.contains($0.id) && !have.contains($0.id) }; s.doc.tools.insert(contentsOf: add, at: 0) }
+        if Prefs.int("toolsVer", 1) < 3 { s.doc.tools.removeAll { $0.id == "t1" && $0.name == "Abd-Uzish 16" }; Prefs.setInt("toolsVer", 3); save(s) } }
     static func save(_ s: AppState) { Prefs.set("tools", Json.stringify(s.doc.tools.map { $0.toMap() as Any })) }
 }
 struct ToolDbDlg: View {
@@ -173,7 +175,7 @@ struct ToolDbDlg: View {
             Flow {
                 Button("+ " + tr("Добавить")) { let t = ToolDef(); d.tools.append(t); ToolStore.save(s); s.dlg = ("toolEdit", t); s.bump() }.padding(6)
                 Button(tr("Изменить")) { if let t = sel { s.dlg = ("toolEdit", t); s.bump() } }.padding(6).disabled(sel == nil)
-                Button(tr("Копия")) { if let t = sel { let c = t.copy(); c.id = "t" + Geom.uid(); c.name = t.name + " (копия)"; d.tools.append(c); selId = c.id; ToolStore.save(s); s.bump() } }.padding(6).disabled(sel == nil)
+                Button(tr("Копия")) { if let t = sel { let c = t.copy(); c.id = ToolDef.newId(); c.name = t.name + " (копия)"; d.tools.append(c); selId = c.id; ToolStore.save(s); s.bump() } }.padding(6).disabled(sel == nil)
                 Button(tr("Удалить")) { if let t = sel { d.tools.removeAll { $0 === t }; selId = d.tools.first?.id; ToolStore.save(s); s.bump() } }.padding(6).disabled(sel == nil || d.tools.count <= 1)
             }.padding(.top, 8)
         }.onAppear { selId = ((pc?.state["tool"] as? ToolDef).flatMap { t in d.tools.first { $0.id == t.id } } ?? d.tools.first)?.id }
@@ -213,20 +215,21 @@ struct ToolEditDlg: View {
 
 // ---------- сохранение УП ----------
 enum PostStore {
-    static func list() -> [PostDef] { var l = [Post.weihong, Post.superstar]
+    static func list() -> [PostDef] { var l = Post.builtins
         for txt in (Prefs.str("cons") ?? "").components(separatedBy: "\u{1}") where !txt.trimmed.isEmpty { l.append(Post.parseCon(txt)) }; return l }
     static func add(_ text: String) { Prefs.set("cons", (Prefs.str("cons") ?? "") + "\u{1}" + text) }
 }
 struct SaveTpDlg: View {
     @ObservedObject var s: AppState; let close: () -> Void
-    @State private var off: Set<String> = []; @State private var posts: [PostDef] = PostStore.list(); @State private var pi = Prefs.int("post", 0)
+    @State private var off: Set<String> = []; @State private var posts: [PostDef] = PostStore.list(); @State private var pi: Int = { let sd = Prefs.str("postDesc") ?? ""; return max(0, PostStore.list().firstIndex { $0.desc == sd } ?? 0) }()
     @State private var preview = ""; @State private var fname = ""
+    private func importCon() { s.pickFile("*/*") { _, b in let txt = Io.decodeText(b); _ = Post.parseCon(txt); PostStore.add(txt); posts = PostStore.list(); pi = posts.count - 1 } }
     var body: some View {
         let d = s.doc; let post = posts.getOrNull(pi) ?? posts[0]
         func gen() -> String? { let recs = d.toolpaths.filter { !off.contains($0.id) }; if recs.isEmpty { s.toast("Отметьте траектории"); return nil }; return d.gcode(recs, post) }
         return Dlg(title: "Сохранить траектории", close: close, wide: true, buttons: {
             Button(tr("Просмотр")) { if let g = gen() { preview = g.components(separatedBy: post.eol).prefix(60).joined(separator: "\n") } }.padding(6)
-            PrimaryBtn(tr("Сохранить")) { if !Premium.canSaveNc() { s.dlg = ("premium", "limit"); s.bump() } else if let g = gen() { Prefs.setInt("post", pi); s.saveText(fname + "." + post.ext, g) { Premium.countNc(); AdManager.maybeInterstitial(); s.bump() } } }
+            PrimaryBtn(tr("Сохранить")) { if !Premium.canSaveNc() { s.dlg = ("premium", "limit"); s.bump() } else if let g = gen() { Prefs.set("postDesc", post.desc); s.saveText(fname + "." + post.ext, g) { Premium.countNc(); AdManager.maybeInterstitial(); s.bump() } } }
         }) {
             if !Premium.on() { Text(tr("Бесплатно: 1 программа для станка в день. Сегодня осталось:") + " \(max(0, Premium.FREE_PER_DAY - Premium.usedToday()))").font(.system(size: 12)).foregroundColor(Color(argb: 0xFFB8862A)) }
             if d.toolpaths.isEmpty { Text(tr("Нет траекторий. Выберите векторы и нажмите «Профиль» или «Вдоль векторов».")) }
@@ -235,11 +238,16 @@ struct SaveTpDlg: View {
                     .contentShape(Rectangle()).onTapGesture { if off.contains(tp.id) { off.remove(tp.id) } else { off.insert(tp.id) } }
             }
             Text(tr("Формат файла (постпроцессор)") + ":").font(.system(size: 14, weight: .bold)).padding(.top, 8)
-            ForEach(Array(posts.enumerated()), id: \.offset) { i, p in RadioRow(label: tr(p.desc) + "  (." + p.ext + ")", on: pi == i) { pi = i } }
-            Button("+ " + tr("Загрузить свой .con…")) { s.pickFile("*/*") { _, b in let txt = Io.decodeText(b); _ = Post.parseCon(txt); PostStore.add(txt); posts = PostStore.list(); pi = posts.count - 1 } }.font(.system(size: 13)).padding(.vertical, 4)
+            Menu {
+                ForEach(Array(posts.enumerated()), id: \.offset) { i, p in Button { pi = i } label: { if i == pi { Label(tr(p.desc), systemImage: "checkmark") } else { Text(tr(p.desc)) } } }
+                Divider()
+                Button("+ " + tr("Загрузить свой .con…")) { importCon() }
+            } label: { HStack { Text(tr(post.desc)).font(.system(size: 13)).multilineTextAlignment(.leading).frame(maxWidth: .infinity, alignment: .leading); Text("▾") }.padding(8).overlay(RoundedRectangle(cornerRadius: 18).stroke(BLUE)) }
+            Button("📥 " + tr("Импорт постпроцессора (.con)…")) { importCon() }.font(.system(size: 13)).padding(.vertical, 4)
+            Text(tr("Встроенные форматы — наши описания. Перед первым резом проверьте программу «в воздухе» (Z поднят).")).font(.system(size: 11)).foregroundColor(.gray)
             Text(tr("Имя файла")).font(.system(size: 12)).foregroundColor(.secondary)
             HStack { TextField("", text: $fname).padding(6).overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.gray.opacity(0.5))); Text("." + post.ext) }
-            Button { if !Premium.canSaveNc() { s.dlg = ("premium", "limit"); s.bump() } else if let g = gen() { Prefs.setInt("post", pi); if s.shareText(fname + "." + post.ext, g) { Premium.countNc() } } } label: {
+            Button { if !Premium.canSaveNc() { s.dlg = ("premium", "limit"); s.bump() } else if let g = gen() { Prefs.set("postDesc", post.desc); if s.shareText(fname + "." + post.ext, g) { Premium.countNc() } } } label: {
                 Text("📤  " + tr("Поделиться") + " (Telegram, " + tr("почта") + "…)").frame(maxWidth: .infinity).padding(8).overlay(RoundedRectangle(cornerRadius: 18).stroke(BLUE)) }.padding(.top, 6)
             Text(tr("Точка «дом»") + ": X\(f2(d.material.homeX)) Y\(f2(d.material.homeY)) Z\(f2(d.material.homeZ))").font(.system(size: 12)).foregroundColor(.gray)
             if !preview.isEmpty { Text(preview).font(.system(size: 11, design: .monospaced)).frame(maxWidth: .infinity, alignment: .leading).padding(6).background(Color(argb: 0xFFF4F4F4)) }

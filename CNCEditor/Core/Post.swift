@@ -65,6 +65,13 @@ enum Post {
     private static func stdTpl() -> [String: String] { ["RAPID_RATE_MOVE": "G0[X][Y][Z]", "FIRST_FEED_RATE_MOVE": "G1[X][Y][Z][F]", "FEED_RATE_MOVE": "[X][Y][Z]"] }
 
     /// Собственные встроенные схемы (описания форматов, не файлы Delcam)
+    static var mach3: PostDef { PostDef("Mach3 / Mach4 (мм) (*.tap)", "tap", "MM", "\r\n", stdFmt(), ["%", "G21 G90 G17 G40 G49 G80", "T[T] M6", "G0[ZH]", "G0[XH][YH][S]M3"], ["G0[ZH]", "G0X0Y0", "M5", "M30", "%"], ["G0[ZH]", "M5", "T[T] M6", "[S]M3"], stdTpl()) }
+    static var grbl: PostDef { PostDef("GRBL (мм) (*.nc) — настольные станки", "nc", "MM", "\r\n", stdFmt(), ["G21 G90 G17", "G0[ZH]", "G0[XH][YH]", "[S]M3"], ["G0[ZH]", "G0X0Y0", "M5", "M2"], ["G0[ZH]", "M5", "M0", "[S]M3"], stdTpl()) }
+    static var richauto: PostDef { PostDef("RichAuto DSP A11 / A18 (*.nc)", "nc", "MM", "\r\n", stdFmt(), ["G90 G21", "G0[ZH]", "G0[XH][YH]", "M03 [S]"], ["G0[ZH]", "M05", "G0X0Y0", "M30"], ["G0[ZH]", "M05", "M00", "M03 [S]"], stdTpl()) }
+    static var syntec: PostDef { PostDef("Syntec / Fanuc (мм) (*.nc)", "nc", "MM", "\r\n", stdFmt(), ["%", "O0001", "G21 G17 G40 G49 G80 G90", "T[T] M6", "G0 G54 [XH][YH] [S] M3", "G43 H[T] [ZH]"], ["M5", "G91 G28 Z0", "G90", "M30", "%"], ["M5", "G91 G28 Z0", "G90", "T[T] M6", "[S] M3", "G43 H[T]"], stdTpl()) }
+    static var linuxcnc: PostDef { PostDef("LinuxCNC (мм) (*.ngc)", "ngc", "MM", "\r\n", stdFmt(), ["%", "G21 G90 G17 G64 P0.01", "T[T] M6", "G0[ZH]", "G0[XH][YH]", "[S]M3"], ["G0[ZH]", "G0X0Y0", "M5", "M2", "%"], ["G0[ZH]", "M5", "T[T] M6", "[S]M3"], stdTpl()) }
+    /// все встроенные постпроцессоры (наши описания форматов; перед первым резом проверьте «в воздухе»)
+    static var builtins: [PostDef] { [weihong, superstar, mach3, grbl, richauto, syntec, linuxcnc] }
     static var weihong: PostDef { PostDef("G-Code (mm) (*.tap) — Weihong / NcStudio", "tap", "MM", "\r\n", stdFmt(),
         ["T1M6", "G0[ZH]", "G0[XH][YH][S]M3"], ["G0[ZH]", "G0X0Y0", "M30"], [], stdTpl()) }
     static var superstar: PostDef { PostDef("Superstarcnc-LNC (*.nc) — 4 шпинделя", "nc", "MM", "\r\n", stdFmt(),
