@@ -33,11 +33,11 @@ for _ in range(40):
 v = vs[0]["id"]
 b = None
 for _ in range(60):
-    bs = call("GET", f"/v1/builds?filter[app]={APP}&sort=-uploadedDate&limit=3")["data"]
-    b = next((x for x in bs if int(x["attributes"]["version"]) >= 17 and x["attributes"]["processingState"] == "VALID"), None)
+    bs = call("GET", f"/v1/builds?filter[app]={APP}&sort=-uploadedDate&limit=10")["data"]
+    b = next((x for x in bs if int(x["attributes"]["version"]) == 14 and x["attributes"]["processingState"] == "VALID"), None)
     if b: break
     time.sleep(30)
-if not b: raise SystemExit("build 17 not ready")
+if not b: raise SystemExit("build 14 not found")
 call("PATCH", f"/v1/appStoreVersions/{v}/relationships/build", {"data": {"type": "builds", "id": b["id"]}})
 print("attached build", b["attributes"]["version"])
 sub = next((x["id"] for x in subs_() if x["attributes"]["state"] == "READY_FOR_REVIEW"), None)
