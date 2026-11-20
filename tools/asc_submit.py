@@ -40,15 +40,15 @@ for _ in range(60):
 if not b: raise SystemExit("build 14 not found")
 call("PATCH", f"/v1/appStoreVersions/{v}/relationships/build", {"data": {"type": "builds", "id": b["id"]}})
 print("attached build", b["attributes"]["version"])
-sub = next((x["id"] for x in subs_() if x["attributes"]["state"] == "READY_FOR_REVIEW"), None)
-if not sub:
-    sub = call("POST", "/v1/reviewSubmissions", {"data": {"type": "reviewSubmissions", "attributes": {"platform": "IOS"}, "relationships": {"app": {"data": {"type": "apps", "id": APP}}}}})["data"]["id"]
+sub = None
+for _ in range(80):  # ждём черновик с покупкой Premium (добавляется в консоли)
+    for x in subs_():
+        if x["attributes"]["state"] == "READY_FOR_REVIEW" and call("GET", f"/v1/reviewSubmissions/{x['id']}/items")["data"]:
+            sub = x["id"]
+    if sub: break
+    time.sleep(15)
+if not sub: raise SystemExit("no IAP draft")
 call("POST", "/v1/reviewSubmissionItems", {"data": {"type": "reviewSubmissionItems", "relationships": {"reviewSubmission": {"data": {"type": "reviewSubmissions", "id": sub}}, "appStoreVersion": {"data": {"type": "appStoreVersions", "id": v}}}}})
-print("iap state", call("GET", f"/v2/inAppPurchases/{IAP}")["data"]["attributes"]["state"])
-try:
-    call("POST", "/v1/inAppPurchaseSubmissions", {"data": {"type": "inAppPurchaseSubmissions", "relationships": {"inAppPurchaseV2": {"data": {"type": "inAppPurchases", "id": IAP}}}}})
-    print("iap added")
-except SystemExit as e: print("iap:", str(e)[:500])
 print("items", len(call("GET", f"/v1/reviewSubmissions/{sub}/items")["data"]))
 r = call("PATCH", f"/v1/reviewSubmissions/{sub}", {"data": {"type": "reviewSubmissions", "id": sub, "attributes": {"submitted": True}}})
 print("submission", r["data"]["attributes"]["state"])
