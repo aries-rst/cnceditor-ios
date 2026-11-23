@@ -46,6 +46,7 @@ targets:
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
         ITSAppUsesNonExemptEncryption: false
+        NSUserTrackingUsageDescription: "This identifier is used to show you more relevant ads. / Этот идентификатор используется для показа более релевантной рекламы."
         UIFileSharingEnabled: true
         LSSupportsOpeningDocumentsInPlace: true
         NSCameraUsageDescription: "The camera is used to photograph a drawing and convert it into vectors. / Камера используется, чтобы сфотографировать рисунок и превратить его в векторы."

@@ -3,9 +3,10 @@ import SwiftUI
 import UIKit
 import GoogleMobileAds
 import UserMessagingPlatform
+import AppTrackingTransparency
 
 enum AdManager {
-    static let ADS_ENABLED = false
+    static let ADS_ENABLED = true
     static let BANNER_ID = "ca-app-pub-9638598348702189/3684386601"
     static let INTERSTITIAL_ID = "ca-app-pub-9638598348702189/3324247775"
     private static var started = false
@@ -20,6 +21,7 @@ enum AdManager {
         Task { @MainActor in
             do { try await ConsentInformation.shared.requestConsentInfoUpdate(with: RequestParameters())
                  if let vc = topVC() { try await ConsentForm.loadAndPresentIfRequired(from: vc) } } catch {}
+            if ATTrackingManager.trackingAuthorizationStatus == .notDetermined { _ = await ATTrackingManager.requestTrackingAuthorization() }
             if ConsentInformation.shared.canRequestAds { start() }
         }
     }
